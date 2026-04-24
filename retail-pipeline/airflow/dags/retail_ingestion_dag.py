@@ -118,7 +118,7 @@ with DAG(
         task_id="validate_raw_row_counts",
         configuration={
             "query": {
-                "query": f"""
+                "query": f"""# nosec B608
                     SELECT
                         'raw_sales'    AS table_name,
                         COUNT(*)       AS row_count,

@@ -19,7 +19,6 @@ import time
 
 import google.auth
 import google.auth.transport.requests
-from openai import timeout
 import requests
 
 
