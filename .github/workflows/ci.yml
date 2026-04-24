@@ -39,13 +39,13 @@ jobs:
         run: pip install flake8 black isort
 
       - name: Black format check
-        run: black --check airflow/dags/ scripts/
+        run: black --check airflow/dags/ retail-pipeline/scripts/
 
       - name: isort import order check
-        run: isort --check-only airflow/dags/ scripts/
+        run: isort --check-only airflow/dags/ retail-pipeline/scripts/
 
       - name: Flake8 style check
-        run: flake8 airflow/dags/ scripts/ --max-line-length=100 --extend-ignore=E203,W503
+        run: flake8 airflow/dags/ retail-pipeline/scripts/ --max-line-length=100 --extend-ignore=E203,W503
 
   # ── 2. Validate Airflow DAGs ──────────────────────────────────────────────────
   validate-dags:
