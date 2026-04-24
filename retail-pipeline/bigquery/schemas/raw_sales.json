@@ -1,0 +1,80 @@
+[
+  {
+    "name": "transaction_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique transaction identifier"
+  },
+  {
+    "name": "sale_date",
+    "type": "DATE",
+    "mode": "REQUIRED",
+    "description": "Date of sale"
+  },
+  {
+    "name": "store_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Store identifier"
+  },
+  {
+    "name": "product_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Product identifier"
+  },
+  {
+    "name": "customer_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Customer identifier (nullable for anonymous)"
+  },
+  {
+    "name": "quantity",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Number of units sold"
+  },
+  {
+    "name": "unit_price",
+    "type": "FLOAT",
+    "mode": "REQUIRED",
+    "description": "Price per unit at time of sale"
+  },
+  {
+    "name": "discount_pct",
+    "type": "FLOAT",
+    "mode": "NULLABLE",
+    "description": "Discount percentage applied"
+  },
+  {
+    "name": "total_amount",
+    "type": "FLOAT",
+    "mode": "REQUIRED",
+    "description": "Total sale amount after discounts"
+  },
+  {
+    "name": "payment_method",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Payment method used"
+  },
+  {
+    "name": "region",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Geographic region"
+  },
+  {
+    "name": "_ingested_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Airflow ingestion timestamp"
+  },
+  {
+    "name": "_source_file",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Source file name for traceability"
+  }
+]

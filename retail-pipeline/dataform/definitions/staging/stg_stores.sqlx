@@ -1,0 +1,27 @@
+-- definitions/staging/stg_stores.sqlx
+
+config {
+  type: "table",
+  schema: "retail_staging",
+  name: "stg_stores",
+  description: "Cleaned store dimension",
+  tags: ["staging", "stores"],
+  assertions: {
+    nonNull: ["store_id", "store_name"],
+    uniqueKey: ["store_id"]
+  }
+}
+
+SELECT
+  TRIM(store_id)                                  AS store_id,
+  INITCAP(TRIM(store_name))                       AS store_name,
+  UPPER(TRIM(COALESCE(region, 'UNKNOWN')))         AS region,
+  UPPER(TRIM(COALESCE(state, 'XX')))               AS state,
+  INITCAP(TRIM(COALESCE(city, 'Unknown')))         AS city,
+  SAFE_CAST(open_date AS DATE)                    AS open_date,
+  DATE_DIFF(CURRENT_DATE(), SAFE_CAST(open_date AS DATE), YEAR) AS years_open,
+  _ingested_at,
+  CURRENT_TIMESTAMP()                              AS _transformed_at
+
+FROM ${ref("retail_raw", "raw_stores")}
+QUALIFY ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY _ingested_at DESC) = 1

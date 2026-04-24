@@ -1,0 +1,27 @@
+-- definitions/marts/dim_store.sqlx
+
+config {
+  type: "table",
+  schema: "retail_mart",
+  name: "dim_store",
+  description: "Store dimension",
+  tags: ["mart", "dimension", "store"],
+  assertions: {
+    uniqueKey: ["store_key"],
+    nonNull: ["store_key", "store_id"]
+  }
+}
+
+SELECT
+  TO_HEX(MD5(store_id))   AS store_key,
+  store_id,
+  store_name,
+  region,
+  state,
+  city,
+  open_date,
+  years_open,
+  _ingested_at,
+  _transformed_at
+
+FROM ${ref("stg_stores")}

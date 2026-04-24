@@ -1,0 +1,35 @@
+-- definitions/marts/dim_product.sqlx
+
+config {
+  type: "table",
+  schema: "retail_mart",
+  name: "dim_product",
+  description: "Product dimension (SCD Type 1)",
+  tags: ["mart", "dimension", "product"],
+  assertions: {
+    uniqueKey: ["product_key"],
+    nonNull: ["product_key", "product_id", "product_name"]
+  }
+}
+
+SELECT
+  -- Surrogate key
+  TO_HEX(MD5(product_id))   AS product_key,
+
+  -- Natural key
+  product_id,
+
+  -- Attributes
+  product_name,
+  category,
+  subcategory,
+  brand,
+  cost_price,
+  list_price,
+  gross_margin_pct,
+
+  -- Audit
+  _ingested_at,
+  _transformed_at
+
+FROM ${ref("stg_products")}

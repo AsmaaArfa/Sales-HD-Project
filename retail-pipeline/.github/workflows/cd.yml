@@ -1,0 +1,227 @@
+name: CD — Deploy Pipeline
+
+on:
+  push:
+    branches: [main]        # Production deploy
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options: [staging, production]
+      run_dataform:
+        description: "Run Dataform after deploy?"
+        required: false
+        default: "true"
+        type: boolean
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false   # Never cancel in-flight deploys
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+  DATAFORM_REGION: ${{ secrets.DATAFORM_REGION }}
+
+jobs:
+  # ── Determine environment ─────────────────────────────────────────────────────
+  setup:
+    name: Determine Deploy Target
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      gcp_project:  ${{ steps.env.outputs.gcp_project }}
+    steps:
+      - id: env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            ENV="production"
+          else
+            ENV="staging"
+          fi
+
+          if [ "$ENV" = "production" ]; then
+            echo "gcp_project=${{ secrets.GCP_PROJECT_ID_PROD }}" >> $GITHUB_OUTPUT
+          else
+            echo "gcp_project=${{ secrets.GCP_PROJECT_ID_STAGING }}" >> $GITHUB_OUTPUT
+          fi
+
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "Deploying to: $ENV"
+
+  # ── 1. Authenticate to GCP ────────────────────────────────────────────────────
+  deploy-bigquery-schemas:
+    name: Deploy BigQuery Schemas (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: setup
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Create BigQuery datasets if not exist
+        env:
+          PROJECT: ${{ needs.setup.outputs.gcp_project }}
+        run: |
+          for dataset in retail_raw retail_staging retail_mart retail_assertions; do
+            echo "Ensuring dataset: $dataset"
+            bq --project_id="$PROJECT" mk \
+              --dataset \
+              --location=US \
+              --description="Retail pipeline — $dataset layer" \
+              "$PROJECT:$dataset" 2>/dev/null || echo "  $dataset already exists"
+          done
+
+      - name: Deploy raw table schemas
+        env:
+          PROJECT: ${{ needs.setup.outputs.gcp_project }}
+        run: |
+          for schema_file in bigquery/schemas/raw_*.json; do
+            TABLE=$(basename "$schema_file" .json)
+            echo "Deploying schema: retail_raw.$TABLE"
+            bq --project_id="$PROJECT" update \
+              --schema "$schema_file" \
+              "$PROJECT:retail_raw.$TABLE" 2>/dev/null || \
+            bq --project_id="$PROJECT" mk \
+              --table \
+              --schema "$schema_file" \
+              "$PROJECT:retail_raw.$TABLE"
+          done
+
+  # ── 2. Deploy Dataform models ─────────────────────────────────────────────────
+  deploy-dataform:
+    name: Compile & Deploy Dataform (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-bigquery-schemas]
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Dataform CLI
+        run: npm install -g @dataform/cli@3
+
+      - name: Install project dependencies
+        working-directory: dataform
+        run: dataform install
+
+      - name: Compile Dataform models
+        working-directory: dataform
+        env:
+          GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
+        run: |
+          dataform compile \
+            --vars="execution_date=$(date -u +%Y-%m-%d)" \
+            --json > /tmp/compilation_result.json
+          echo "✅ Compilation succeeded"
+          cat /tmp/compilation_result.json | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          tables = d.get('tables', [])
+          print(f'  Tables to deploy: {len(tables)}')
+          for t in tables:
+              print(f'    - {t[\"target\"][\"schema\"]}.{t[\"target\"][\"name\"]} ({t[\"type\"]})')
+          "
+
+      - name: Push Dataform code to GCP repository
+        env:
+          PROJECT: ${{ needs.setup.outputs.gcp_project }}
+          REPO: ${{ secrets.DATAFORM_REPO }}
+        run: |
+          # Sync local dataform/ folder to the GCP Dataform repository via API
+          python3 scripts/sync_dataform_repo.py \
+            --project "$PROJECT" \
+            --region "$DATAFORM_REGION" \
+            --repo "$REPO" \
+            --source dataform/
+
+      - name: Run Dataform workflow (optional)
+        if: ${{ github.event.inputs.run_dataform != 'false' }}
+        env:
+          PROJECT: ${{ needs.setup.outputs.gcp_project }}
+          REPO: ${{ secrets.DATAFORM_REPO }}
+        run: |
+          echo "Triggering Dataform workflow invocation..."
+          python3 scripts/trigger_dataform.py \
+            --project "$PROJECT" \
+            --region "$DATAFORM_REGION" \
+            --repo "$REPO" \
+            --vars "execution_date=$(date -u +%Y-%m-%d)" \
+            --wait
+
+  # ── 3. Run post-deploy data quality checks ────────────────────────────────────
+  post-deploy-quality:
+    name: Post-Deploy Quality Checks
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-dataform]
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install google-cloud-bigquery
+
+      - name: Run quality assertions
+        env:
+          GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
+        run: python3 scripts/run_quality_checks.py
+
+  # ── 4. Notify on completion ───────────────────────────────────────────────────
+  notify:
+    name: Notify Deploy Result
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-dataform, post-deploy-quality]
+    if: always()
+    steps:
+      - name: Summarise deployment
+        run: |
+          ENV="${{ needs.setup.outputs.environment }}"
+          DATAFORM_RESULT="${{ needs.deploy-dataform.result }}"
+          QUALITY_RESULT="${{ needs.post-deploy-quality.result }}"
+
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | $ENV |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dataform Deploy | $DATAFORM_RESULT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Quality Checks | $QUALITY_RESULT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$DATAFORM_RESULT" != "success" ] || [ "$QUALITY_RESULT" != "success" ]; then
+            echo "❌ Deployment to $ENV FAILED — review logs above"
+            exit 1
+          fi
+          echo "✅ Deployment to $ENV completed successfully"
