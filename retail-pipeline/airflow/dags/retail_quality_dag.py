@@ -8,11 +8,10 @@ Triggered after the ingestion DAG completes successfully.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.operators.email import EmailOperator
 from airflow.utils.dates import days_ago
 

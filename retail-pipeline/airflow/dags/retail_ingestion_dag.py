@@ -11,10 +11,9 @@ Owner: Data Engineering
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import (
     BigQueryCreateEmptyDatasetOperator,
     BigQueryInsertJobOperator,
