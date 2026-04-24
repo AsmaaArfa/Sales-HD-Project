@@ -150,11 +150,11 @@ jobs:
           REPO: ${{ secrets.DATAFORM_REPO }}
         run: |
           # Sync local dataform/ folder to the GCP Dataform repository via API
-          python3 scripts/sync_dataform_repo.py \
+          python3 retail-pipeline/scripts/sync_dataform_repo.py \
             --project "$PROJECT" \
             --region "$DATAFORM_REGION" \
             --repo "$REPO" \
-            --source dataform/
+            --source retail-pipeline/dataform/
 
       - name: Run Dataform workflow (optional)
         if: ${{ github.event.inputs.run_dataform != 'false' }}
@@ -163,7 +163,7 @@ jobs:
           REPO: ${{ secrets.DATAFORM_REPO }}
         run: |
           echo "Triggering Dataform workflow invocation..."
-          python3 scripts/trigger_dataform.py \
+          python3 retail-pipeline/scripts/trigger_dataform.py \
             --project "$PROJECT" \
             --region "$DATAFORM_REGION" \
             --repo "$REPO" \
@@ -196,7 +196,7 @@ jobs:
       - name: Run quality assertions
         env:
           GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
-        run: python3 scripts/run_quality_checks.py
+        run: python3 retail-pipeline/scripts/run_quality_checks.py
 
   # ── 4. Notify on completion ───────────────────────────────────────────────────
   notify:

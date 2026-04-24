@@ -39,13 +39,13 @@ jobs:
         run: pip install flake8 black isort
 
       - name: Black format check
-        run: black --check airflow/dags/ scripts/
+        run: black --check retail-pipeline/airflow/dags/ retail-pipeline/scripts/
 
       - name: isort import order check
-        run: isort --check-only airflow/dags/ scripts/
+        run: isort --check-only retail-pipeline/airflow/dags/ retail-pipeline/scripts/
 
       - name: Flake8 style check
-        run: flake8 airflow/dags/ scripts/ --max-line-length=100 --extend-ignore=E203,W503
+        run: flake8 retail-pipeline/airflow/dags/ retail-pipeline/scripts/ --max-line-length=100 --extend-ignore=E203,W503
 
   # ── 2. Validate Airflow DAGs ──────────────────────────────────────────────────
   validate-dags:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Import and validate all DAGs
         run: |
-          for dag_file in airflow/dags/*.py; do
+          for dag_file in retail-pipeline/airflow/dags/*.py; do
             echo "Validating: $dag_file"
             python "$dag_file"
           done
@@ -84,7 +84,7 @@ jobs:
       - name: Run DAG unit tests
         run: |
           pip install pytest
-          pytest airflow/tests/ -v --tb=short 2>/dev/null || echo "No unit tests found — skipping"
+          pytest retail-pipeline/airflow/tests/ -v --tb=short 2>/dev/null || echo "No unit tests found — skipping"
 
   # ── 3. Validate Dataform SQL ──────────────────────────────────────────────────
   validate-dataform:
@@ -141,7 +141,7 @@ jobs:
 
       - name: Validate JSON schema files
         run: |
-          python scripts/validate_schemas.py bigquery/schemas/
+          python retail-pipeline/scripts/validate_schemas.py retail-pipeline/bigquery/schemas/
           echo "✅ All schema files are valid JSON"
 
   # ── 5. Security scan ──────────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit security scan
-        run: bandit -r airflow/ scripts/ -ll --quiet
+        run: bandit -r retail-pipeline/airflow/ retail-pipeline/scripts/ -ll --quiet
 
   # ── Summary gate ──────────────────────────────────────────────────────────────
   ci-passed:
