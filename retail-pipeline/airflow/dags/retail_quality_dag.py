@@ -27,22 +27,22 @@ DEFAULT_ARGS = {
 
 # ── Quality check SQL templates ───────────────────────────────────────────────
 CHECKS = {
-    "no_null_transaction_ids": f"""
+    "no_null_transaction_ids": """
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_staging.stg_sales`
         WHERE transaction_id IS NULL
     """,
-    "no_negative_revenue": f"""
+    "no_negative_revenue": """
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_staging.stg_sales`
         WHERE total_amount < 0
     """,
-    "mart_fact_sales_not_empty": f"""
+    "mart_fact_sales_not_empty": """
         SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
         FROM `{GCP_PROJECT_ID}.retail_mart.fact_sales`
         WHERE sale_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
     """,
-    "referential_integrity_product": f"""
+    "referential_integrity_product": """
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_mart.fact_sales` f
         LEFT JOIN `{GCP_PROJECT_ID}.retail_mart.dim_product` p
