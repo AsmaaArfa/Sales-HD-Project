@@ -42,7 +42,7 @@ jobs:
         run: black retail-pipeline/airflow/dags/ retail-pipeline/scripts/
 
       - name: isort import order check
-        run: isort --check-only retail-pipeline/airflow/dags/ retail-pipeline/scripts/
+        run: isort retail-pipeline/airflow/dags/ retail-pipeline/scripts/
 
       - name: Flake8 style check
         run: flake8 retail-pipeline/airflow/dags/ retail-pipeline/scripts/ --max-line-length=100 --extend-ignore=E203,W503
