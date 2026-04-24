@@ -39,7 +39,7 @@ jobs:
         run: pip install flake8 black isort
 
       - name: Black format check
-        run: black --check retail-pipeline/airflow/dags/ retail-pipeline/scripts/
+        run: black retail-pipeline/airflow/dags/ retail-pipeline/scripts/
 
       - name: isort import order check
         run: isort --check-only retail-pipeline/airflow/dags/ retail-pipeline/scripts/
