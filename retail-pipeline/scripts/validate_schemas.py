@@ -77,7 +77,7 @@ def main():
             print(f"  ✅ {fp.name}")
 
     if all_errors:
-        print(f"\n❌ Schema validation failed:")
+        print("\n❌ Schema validation failed:")
         for e in all_errors:
             print(f"   {e}")
         sys.exit(1)
