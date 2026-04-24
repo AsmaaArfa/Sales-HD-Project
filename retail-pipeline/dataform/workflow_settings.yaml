@@ -3,6 +3,7 @@
   "defaultSchema": "retail_staging",
   "defaultLocation": "US",
   "assertionSchema": "retail_assertions",
+  "dataformCoreVersion": "3.0.0",
   "vars": {
     "raw_dataset": "retail_raw",
     "staging_dataset": "retail_staging",
