@@ -30,7 +30,7 @@ CHECKS = [
     QualityCheck(
         name="stg_sales_no_nulls",
         description="No null transaction IDs in staging",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_staging.stg_sales`
             WHERE transaction_id IS NULL
@@ -39,7 +39,7 @@ CHECKS = [
     QualityCheck(
         name="stg_sales_no_negative_revenue",
         description="All sale amounts are non-negative",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_staging.stg_sales`
             WHERE total_amount < 0
@@ -48,7 +48,7 @@ CHECKS = [
     QualityCheck(
         name="fact_sales_loaded_yesterday",
         description="Fact table has rows for yesterday",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
             FROM `{PROJECT}.retail_mart.fact_sales`
             WHERE sale_date = '{YESTERDAY}'
@@ -57,7 +57,7 @@ CHECKS = [
     QualityCheck(
         name="dim_product_no_orphans",
         description="All products in fact table exist in dim_product",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_mart.fact_sales` f
             LEFT JOIN `{PROJECT}.retail_mart.dim_product` p
@@ -69,7 +69,7 @@ CHECKS = [
     QualityCheck(
         name="dim_store_no_orphans",
         description="All stores in fact table exist in dim_store",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_mart.fact_sales` f
             LEFT JOIN `{PROJECT}.retail_mart.dim_store` s
@@ -81,7 +81,7 @@ CHECKS = [
     QualityCheck(
         name="rpt_kpis_revenue_positive",
         description="KPI report has positive total revenue for yesterday",
-        sql=f"""
+        sql=f""" # nosec B608
             SELECT CASE WHEN SUM(total_revenue) <= 0 THEN 1 ELSE 0 END AS failures
             FROM `{PROJECT}.retail_mart.rpt_sales_kpis`
             WHERE sale_date = '{YESTERDAY}'

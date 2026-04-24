@@ -102,17 +102,17 @@ jobs:
         run: npm install -g @dataform/cli@3
 
       - name: Install Dataform project dependencies
-        working-directory: dataform
+        working-directory: retail-pipeline/dataform
         run: dataform install
 
       - name: Compile Dataform models (dry-run)
-        working-directory: dataform
+        working-directory: retail-pipeline/dataform
         env:
           GCP_PROJECT_ID: ci-project
         run: dataform compile --vars='{"execution_date":"2024-01-01"}'
 
       - name: Check for Dataform compilation errors
-        working-directory: dataform
+        working-directory: retail-pipeline/dataform
         run: |
           OUTPUT=$(dataform compile --json 2>&1 || true)
           if echo "$OUTPUT" | grep -q '"type":"error"'; then

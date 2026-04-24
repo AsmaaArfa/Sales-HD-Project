@@ -19,6 +19,7 @@ import time
 
 import google.auth
 import google.auth.transport.requests
+from openai import timeout
 import requests
 
 
@@ -60,6 +61,7 @@ def create_compilation_result(base, token, project, vars_dict):
                 "vars": vars_dict,
             },
         },
+        timeout=(5, 120),
     )
     resp.raise_for_status()
     data = resp.json()
@@ -73,6 +75,7 @@ def create_workflow_invocation(base, token, compilation_result_name):
         f"{base}/workflowInvocations",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         json={"compilationResult": compilation_result_name},
+        timeout=(5, 120),
     )
     resp.raise_for_status()
     data = resp.json()

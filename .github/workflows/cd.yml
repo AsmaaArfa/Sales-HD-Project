@@ -123,11 +123,11 @@ jobs:
         run: npm install -g @dataform/cli@3
 
       - name: Install project dependencies
-        working-directory: dataform
+        working-directory: retail-pipeline/dataform
         run: dataform install
 
       - name: Compile Dataform models
-        working-directory: dataform
+        working-directory: retail-pipeline/dataform
         env:
           GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
         run: |
