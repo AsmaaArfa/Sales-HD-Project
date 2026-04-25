@@ -126,7 +126,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install Python dependencies
-        run: pip install -r retail-pipeline/scripts/requirements.txt
+        run: pip install -r retail-pipeline/requirements.txt
       
       - name: Install Dataform CLI
         run: npm install -g @dataform/cli@3
