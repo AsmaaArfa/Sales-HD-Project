@@ -94,6 +94,7 @@ def wait_for_completion(base, token, invocation_name, timeout):
         resp = requests.get(
             url,
             headers={"Authorization": f"Bearer {token}"},
+            timeout=(5, 120),
         )
         resp.raise_for_status()
         state = resp.json().get("state", "UNKNOWN")

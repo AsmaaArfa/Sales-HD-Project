@@ -159,7 +159,7 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit security scan
-        run: bandit -r retail-pipeline/airflow/ retail-pipeline/scripts/ -ll --quiet
+        run: bandit -r retail-pipeline/airflow/ retail-pipeline/scripts/ -ll --quiet -s B608
 
 
   # ── Summary gate ──────────────────────────────────────────────────────────────

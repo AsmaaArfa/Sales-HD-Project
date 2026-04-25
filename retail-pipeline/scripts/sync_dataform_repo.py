@@ -48,6 +48,7 @@ def write_file(api_base, token, workspace, relative_path, content_bytes):
         url,
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         json=payload,
+        timeout=(5,120),  # (connect timeout, read timeout)
     )
     if resp.status_code not in (200, 204):
         print(f"  ⚠️  Failed to write {relative_path}: {resp.status_code} {resp.text}")

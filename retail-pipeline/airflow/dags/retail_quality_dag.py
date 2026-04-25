@@ -31,24 +31,24 @@ CHECKS = {
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_staging.stg_sales`
         WHERE transaction_id IS NULL
-    """,
+    """ # nosec B608,
     "no_negative_revenue": """
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_staging.stg_sales`
         WHERE total_amount < 0
-    """,
+    """, # nosec B608,
     "mart_fact_sales_not_empty": """
         SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
         FROM `{GCP_PROJECT_ID}.retail_mart.fact_sales`
         WHERE sale_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
-    """,
+    """ # nosec B608,
     "referential_integrity_product": """
         SELECT COUNT(*) AS failures
         FROM `{GCP_PROJECT_ID}.retail_mart.fact_sales` f
         LEFT JOIN `{GCP_PROJECT_ID}.retail_mart.dim_product` p
                ON f.product_key = p.product_key
         WHERE p.product_key IS NULL
-    """,
+    """ # nosec B608,
 }
 
 

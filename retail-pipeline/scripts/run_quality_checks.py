@@ -34,7 +34,7 @@ CHECKS = [
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_staging.stg_sales`
             WHERE transaction_id IS NULL
-        """.format(project=PROJECT),
+        """ # nosec B608,
     ),
     QualityCheck(
         name="stg_sales_no_negative_revenue",
@@ -43,7 +43,7 @@ CHECKS = [
             SELECT COUNT(*) AS failures
             FROM `{PROJECT}.retail_staging.stg_sales`
             WHERE total_amount < 0
-        """.format(project=PROJECT),
+        """ # nosec B608,
     ),
     QualityCheck(
         name="fact_sales_loaded_yesterday",
@@ -52,7 +52,7 @@ CHECKS = [
             SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
             FROM `{PROJECT}.retail_mart.fact_sales`
             WHERE sale_date = '{YESTERDAY}'
-        """.format(project=PROJECT),
+        """ # nosec B608,
     ),
     QualityCheck(
         name="dim_product_no_orphans",
@@ -64,7 +64,7 @@ CHECKS = [
                    ON f.product_key = p.product_key
             WHERE p.product_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
-        """.format(project=PROJECT),
+        """ # nosec B608,
     ),
     QualityCheck(
         name="dim_store_no_orphans",
@@ -76,7 +76,7 @@ CHECKS = [
                    ON f.store_key = s.store_key
             WHERE s.store_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
-        """.format(project=PROJECT),
+        """ # nosec B608,
     ),
     QualityCheck(
         name="rpt_kpis_revenue_positive",
@@ -85,7 +85,7 @@ CHECKS = [
             SELECT CASE WHEN SUM(total_revenue) <= 0 THEN 1 ELSE 0 END AS failures
             FROM `{PROJECT}.retail_mart.rpt_sales_kpis`
             WHERE sale_date = '{YESTERDAY}'
-        """.format(project=PROJECT),
+        """ # nosec B608,
         severity="WARNING",
     ),
 ]

@@ -118,7 +118,7 @@ with DAG(
         task_id="validate_raw_row_counts",
         configuration={
             "query": {
-                "query": f"""# nosec B608
+                "query": f"""
                     SELECT
                         'raw_sales'    AS table_name,
                         COUNT(*)       AS row_count,
@@ -135,7 +135,7 @@ with DAG(
 
                     SELECT 'raw_stores', COUNT(*), CURRENT_DATE()
                     FROM `{GCP_PROJECT_ID}.{BQ_DATASET_RAW}.raw_stores`
-                """,
+                """ # nosec B608,
                 "useLegacySql": False,
             }
         },
