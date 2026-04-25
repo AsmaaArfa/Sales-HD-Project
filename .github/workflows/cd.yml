@@ -65,7 +65,7 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
-          PROJECT="${{ needs.setup.outputs.gcp_project }}""
+          PROJECT="${{ needs.setup.outputs.gcp_project }}"
           for dataset in retail_raw retail_staging retail_mart retail_assertions; do
             echo "Ensuring dataset: $dataset"
             bq --project_id="$PROJECT" mk \
@@ -79,7 +79,7 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
-          PROJECT="${{ needs.setup.outputs.gcp_project }}""
+          PROJECT="${{ needs.setup.outputs.gcp_project }}"
           echo "Project=$PROJECT"
           if [ -z "$PROJECT" ]; then
             echo "❌ GCP project ID is not set. Check previous steps for errors."
