@@ -1,7 +1,6 @@
   defaultProject: ${GCP_PROJECT_ID}
   defaultDataset: retail_staging
   defaultLocation: US
-  assertionSchema: retail_assertions
   dataformCoreVersion: 3.0.0
   vars:
     raw_dataset: retail_raw
