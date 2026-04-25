@@ -1,12 +1,11 @@
-{
-  "defaultProject": "${tough-forest-477116-k6}",
-  "defaultSchema": "retail_staging",
-  "defaultLocation": "US",
-  "assertionSchema": "retail_assertions",
-  "dataformCoreVersion": "3.0.0",
-  "vars": {
-    "raw_dataset": "retail_raw",
-    "staging_dataset": "retail_staging",
-    "mart_dataset": "retail_mart"
-  }
-}
+  defaultProject: ${GCP_PROJECT_ID},
+  defaultDataset: retail_staging,
+  defaultLocation: US,
+  assertionSchema: retail_assertions,
+  dataformCoreVersion: 3.0.0,
+  vars:
+    raw_dataset: retail_raw,
+    staging_dataset: retail_staging,
+    mart_dataset: retail_mart
+  
+
