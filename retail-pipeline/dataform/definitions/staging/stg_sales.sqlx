@@ -54,7 +54,7 @@ SELECT
   _source_file,
   CURRENT_TIMESTAMP()                             AS _transformed_at
 
-FROM ${ref("retail_raw", "raw_sales")}
+FROM `${GCP_PROJECT_ID}.retail_raw.raw_sales`
 
 ${ when(incremental(),
    `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`) }

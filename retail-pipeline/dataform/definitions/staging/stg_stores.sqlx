@@ -23,5 +23,5 @@ SELECT
   _ingested_at,
   CURRENT_TIMESTAMP()                              AS _transformed_at
 
-FROM ${ref("retail_raw", "raw_stores")}
+FROM `${GCP_PROJECT_ID}.retail_raw.raw_stores`
 QUALIFY ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY _ingested_at DESC) = 1
