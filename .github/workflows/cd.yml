@@ -37,6 +37,8 @@ jobs:
     steps:
       - id: env
         run: |
+          set -e
+          
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             ENV="${{ github.event.inputs.environment }}"
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
