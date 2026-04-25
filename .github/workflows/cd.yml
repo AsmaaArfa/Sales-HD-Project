@@ -129,10 +129,6 @@ jobs:
       - name: Install Dataform CLI
         run: npm install -g @dataform/cli@3
 
-      - name: Install project dependencies
-        working-directory: retail-pipeline/dataform
-        run: dataform install
-
       - name: Compile Dataform models
         working-directory: retail-pipeline/dataform
         env:
