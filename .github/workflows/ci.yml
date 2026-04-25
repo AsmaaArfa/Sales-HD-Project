@@ -144,24 +144,6 @@ jobs:
           python retail-pipeline/scripts/validate_schemas.py retail-pipeline/bigquery/schemas/
           echo "✅ All schema files are valid JSON"
 
-  # ── 5. Security scan ──────────────────────────────────────────────────────────
-  # security-scan:
-  #   name: Security Scan
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ env.PYTHON_VERSION }}
-
-  #     - name: Install Bandit
-  #       run: pip install bandit
-
-  #     - name: Run Bandit security scan
-  #       run: bandit -r retail-pipeline/airflow/ retail-pipeline/scripts/ -ll --quiet
-
   # ── Summary gate ──────────────────────────────────────────────────────────────
   ci-passed:
     name: CI Passed
