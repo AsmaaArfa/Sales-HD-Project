@@ -39,6 +39,11 @@ jobs:
         run: |
           set -e
 
+          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then
+            echo "❌ GCP_PROJECT_ID secret is missing"
+            exit 1
+          fi
+          
           echo "environment=default" >> $GITHUB_OUTPUT
           echo "gcp_project=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_OUTPUT
 
@@ -81,9 +86,9 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
-          PROJECT="${{ needs.setup.outputs.gcp_project }}"
+          PROJECT="${{ needs.setup.outputs.gcp_project  }}"
           echo "setup output = '${{ needs.setup.outputs.gcp_project }}'"
-          
+
           echo "Project=$PROJECT"
           if [ -z "$PROJECT" ]; then
             echo "❌ GCP project ID is not set. Check previous steps for errors."
