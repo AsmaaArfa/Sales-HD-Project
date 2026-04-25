@@ -77,7 +77,7 @@ jobs:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
           echo "Project=$PROJECT"
-          if [ -z "$PROJECT"]; then
+          if [ -z "$PROJECT" ]; then
             echo "❌ GCP project ID is not set. Check previous steps for errors."
             exit 1
           fi
