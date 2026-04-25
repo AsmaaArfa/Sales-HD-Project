@@ -38,23 +38,9 @@ jobs:
       - id: env
         run: |
           set -e
-          
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ENV="${{ github.event.inputs.environment }}"
-          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            ENV="production"
-          else
-            ENV="staging"
-          fi
 
-          if [ "$ENV" = "production" ]; then
-            echo "gcp_project=${{ secrets.GCP_PROJECT_ID_PROD }}" >> $GITHUB_OUTPUT
-          else
-            echo "gcp_project=${{ secrets.GCP_PROJECT_ID_STAGING }}" >> $GITHUB_OUTPUT
-          fi
-
-          echo "environment=$ENV" >> $GITHUB_OUTPUT
-          echo "Deploying to: $ENV"
+          echo "environment=default" >> $GITHUB_OUTPUT
+          echo "gcp_project=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_OUTPUT
 
   # ── 1. Authenticate to GCP ────────────────────────────────────────────────────
   deploy-bigquery-schemas:
