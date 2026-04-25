@@ -43,7 +43,7 @@ jobs:
             echo "❌ GCP_PROJECT_ID secret is missing"
             exit 1
           fi
-          
+
           echo "environment=default" >> $GITHUB_OUTPUT
           echo "gcp_project=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_OUTPUT
 
@@ -70,7 +70,7 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
-          PROJECT="${{ needs.setup.outputs.gcp_project }}"
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
           echo "setup output = '${{ needs.setup.outputs.gcp_project }}'"
 
           for dataset in retail_raw retail_staging retail_mart retail_assertions; do
@@ -86,7 +86,7 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
-          PROJECT="${{ needs.setup.outputs.gcp_project  }}"
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
           echo "setup output = '${{ needs.setup.outputs.gcp_project }}'"
 
           echo "Project=$PROJECT"
