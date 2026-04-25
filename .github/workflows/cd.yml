@@ -88,16 +88,22 @@ jobs:
         env:
           PROJECT: ${{ needs.setup.outputs.gcp_project }}
         run: |
+          echo "Project=$PROJECT"
+          if [ -z "$PROJECT"]; then
+            echo "❌ GCP project ID is not set. Check previous steps for errors."
+            exit 1
+          fi
+
           for schema_file in retail-pipeline/bigquery/schemas/raw_*.json; do
             TABLE=$(basename "$schema_file" .json)
             echo "Deploying schema: retail_raw.$TABLE"
             bq --project_id="$PROJECT" update \
               --schema "$schema_file" \
-              "$PROJECT:retail_raw.$TABLE" 2>/dev/null || \
+              "${PROJECT}:retail_raw.${TABLE}" 2>/dev/null || \
             bq --project_id="$PROJECT" mk \
               --table \
               --schema "$schema_file" \
-              "$PROJECT:retail_raw.$TABLE"
+              "${PROJECT}:retail_raw.${TABLE}"
           done
 
   # ── 2. Deploy Dataform models ─────────────────────────────────────────────────
