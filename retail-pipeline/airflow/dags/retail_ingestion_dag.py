@@ -135,7 +135,7 @@ with DAG(
 
                     SELECT 'raw_stores', COUNT(*), CURRENT_DATE()
                     FROM `{GCP_PROJECT_ID}.{BQ_DATASET_RAW}.raw_stores`
-                """ # nosec B608,
+                """,
                 "useLegacySql": False,
             }
         },
