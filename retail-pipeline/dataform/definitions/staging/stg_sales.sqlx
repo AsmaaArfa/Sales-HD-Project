@@ -1,7 +1,21 @@
--- definitions/staging/stg_sales.sqlx
--- Staging layer: clean, type-cast, and deduplicate raw sales
-
 config {
+<<<<<<< HEAD
+    type: "incremental",
+    schema: "retail_staging",
+    name: "stg_sales",
+    description: "Cleaned and standardised sales transactions",
+    uniqueKey: ["transaction_id"],
+    bigquery: {
+        partitionBy: "sale_date",
+        clusterBy: ["store_id", "product_id"],
+        requirePartitionFilter: false
+    },
+    tags: ["staging", "sales", "daily"],
+    assertions: {
+        nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
+        rowConditions: ["total_amount >= 0", "quantity > 0"]
+    }
+=======
   type: "incremental",
   schema: "retail_staging",
   name: "stg_sales",
@@ -16,44 +30,51 @@ config {
     nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
     rowConditions: ["total_amount >= 0", "quantity > 0"]
   }
+>>>>>>> refs/heads/main
 }
 
-pre_operations {
-  -- Remove any duplicates that may land during re-runs
-  DELETE FROM ${self()}
-  WHERE sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
-}
-
+  -- definitions/staging/stg_sales.sqlx
+  -- Staging layer: clean, type-cast, and deduplicate raw sales
 SELECT
   -- Keys
-  TRIM(transaction_id)                            AS transaction_id,
-  SAFE_CAST(sale_date AS DATE)                    AS sale_date,
-  TRIM(store_id)                                  AS store_id,
-  TRIM(product_id)                                AS product_id,
-  NULLIF(TRIM(customer_id), '')                   AS customer_id,
-
+  TRIM(transaction_id) AS transaction_id,
+  SAFE_CAST(sale_date AS DATE) AS sale_date,
+  TRIM(store_id) AS store_id,
+  TRIM(product_id) AS product_id,
+  NULLIF(TRIM(customer_id), '') AS customer_id,
   -- Measures
-  SAFE_CAST(quantity    AS INT64)                 AS quantity,
-  ROUND(SAFE_CAST(unit_price   AS FLOAT64), 4)   AS unit_price,
+  SAFE_CAST(quantity AS INT64) AS quantity,
+  ROUND(SAFE_CAST(unit_price AS FLOAT64), 4) AS unit_price,
   COALESCE(SAFE_CAST(discount_pct AS FLOAT64), 0) AS discount_pct,
-  ROUND(SAFE_CAST(total_amount AS FLOAT64), 4)   AS total_amount,
-
+  ROUND(SAFE_CAST(total_amount AS FLOAT64), 4) AS total_amount,
   -- Derived
-  ROUND(
-    SAFE_CAST(total_amount AS FLOAT64) / NULLIF(SAFE_CAST(quantity AS INT64), 0),
-    4
-  )                                               AS effective_unit_price,
-
+  ROUND( SAFE_CAST(total_amount AS FLOAT64) / NULLIF(SAFE_CAST(quantity AS INT64), 0), 4 ) AS effective_unit_price,
   -- Attributes
   UPPER(TRIM(COALESCE(payment_method, 'UNKNOWN'))) AS payment_method,
-  UPPER(TRIM(COALESCE(region, 'UNKNOWN')))          AS region,
-
+  UPPER(TRIM(COALESCE(region, 'UNKNOWN'))) AS region,
   -- Audit
   _ingested_at,
   _source_file,
-  CURRENT_TIMESTAMP()                             AS _transformed_at
+  CURRENT_TIMESTAMP() AS _transformed_at
+FROM
+  `${dataform.projectConfig.defaultDatabase}.retail_raw.raw_sales`
+  ${
+      when(incremental(),
+          `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`)
+  }
 
+<<<<<<< HEAD
+pre_operations {
+  -- Remove any duplicates that may land during re-runs
+  DELETE
+  FROM
+    ${self()}
+  WHERE
+    sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
+}
+=======
 FROM `tough-forest-477116-k6.retail_raw.raw_sales`
 
 ${ when(incremental(),
    `WHERE DATE(_ingested_at) >= DATE('${dataform.projectConfig.vars.execution_date || "1900-01-01"}')`) }
+>>>>>>> refs/heads/main

@@ -1,0 +1,60 @@
+-- definitions/marts/rpt_sales_kpis.sqlx
+-- Pre-aggregated KPI table for dashboard consumption
+
+config {
+  type: "table",
+  schema: "retail_mart",
+  name: "rpt_sales_kpis",
+  description: "Daily KPI rollup: revenue, units, margin by store/product/region",
+  tags: ["mart", "report", "kpis"],
+  bigquery: {
+    partitionBy: "sale_date",
+    clusterBy: ["region", "category"]
+  }
+}
+
+SELECT
+  f.sale_date,
+  d.year,
+  d.quarter,
+  d.month,
+  d.month_name,
+  d.year_month,
+  d.is_weekend,
+
+  -- Store dimensions
+  st.region,
+  st.state,
+  st.city,
+  st.store_name,
+
+  -- Product dimensions
+  p.category,
+  p.subcategory,
+  p.brand,
+
+  -- Volume
+  COUNT(DISTINCT f.transaction_id)    AS transaction_count,
+  SUM(f.quantity)                     AS units_sold,
+
+  -- Revenue
+  ROUND(SUM(f.total_amount), 2)       AS total_revenue,
+  ROUND(AVG(f.total_amount), 2)       AS avg_order_value,
+  ROUND(SUM(f.gross_profit), 2)       AS gross_profit,
+  ROUND(
+    SAFE_DIVIDE(SUM(f.gross_profit), SUM(f.total_amount)) * 100, 2
+  )                                    AS gross_margin_pct,
+
+  -- Discount analysis
+  ROUND(AVG(f.discount_pct), 2)       AS avg_discount_pct,
+  COUNTIF(f.discount_pct > 0)         AS discounted_transactions,
+
+  -- Customer
+  COUNT(DISTINCT f.customer_id)       AS unique_customers
+
+FROM ${ref("fact_sales")} f
+LEFT JOIN ${ref("dim_date")}    d  ON d.date_key  = f.date_key
+LEFT JOIN ${ref("dim_store")}   st ON st.store_key = f.store_key
+LEFT JOIN ${ref("dim_product")} p  ON p.product_key = f.product_key
+
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14

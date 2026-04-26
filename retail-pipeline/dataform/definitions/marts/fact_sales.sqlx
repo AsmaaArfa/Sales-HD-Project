@@ -1,63 +1,61 @@
--- definitions/marts/fact_sales.sqlx
--- Central fact table of the star schema
-
 config {
-  type: "incremental",
-  schema: "retail_mart",
-  name: "fact_sales",
-  description: "Sales fact table — grain: one row per transaction line",
-  uniqueKey: ["sale_key"],
-  bigquery: {
-    partitionBy: "sale_date",
-    clusterBy: ["store_key", "product_key", "region"],
-    requirePartitionFilter: false
-  },
-  tags: ["mart", "fact", "sales", "daily"],
-  dependOnDependencyAssertions: true
+    type: "incremental",
+    schema: "retail_mart",
+    name: "fact_sales",
+    description: "Sales fact table — grain: one row per transaction line",
+    uniqueKey: ["sale_key"],
+    bigquery: {
+        partitionBy: "sale_date",
+        clusterBy: ["store_key", "product_key", "region"],
+        requirePartitionFilter: false
+    },
+    tags: ["mart", "fact", "sales", "daily"],
+    dependOnDependencyAssertions: true
 }
 
-pre_operations {
-  DELETE FROM ${self()}
-  WHERE sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
-}
-
+  -- definitions/marts/fact_sales.sqlx
+  -- Central fact table of the star schema
 SELECT
   -- Surrogate key
   TO_HEX(MD5(CONCAT(s.transaction_id, CAST(s.sale_date AS STRING)))) AS sale_key,
-
   -- Foreign keys (to dimensions)
-  FORMAT_DATE('%Y%m%d', s.sale_date)   AS date_key,
-  TO_HEX(MD5(s.store_id))              AS store_key,
-  TO_HEX(MD5(s.product_id))            AS product_key,
-
+  FORMAT_DATE('%Y%m%d', s.sale_date) AS date_key,
+  TO_HEX(MD5(s.store_id)) AS store_key,
+  TO_HEX(MD5(s.product_id)) AS product_key,
   -- Degenerate dimensions
   s.transaction_id,
   s.customer_id,
   s.payment_method,
   s.region,
-
   -- Date
   s.sale_date,
-
   -- Measures
   s.quantity,
   s.unit_price,
   s.discount_pct,
   s.total_amount,
   s.effective_unit_price,
-
   -- Derived financial measures
-  ROUND(s.total_amount * COALESCE(p.cost_price / NULLIF(p.list_price, 0), 0), 4)
-                                        AS estimated_cogs,
-  ROUND(s.total_amount - (s.total_amount * COALESCE(p.cost_price / NULLIF(p.list_price, 0), 0)), 4)
-                                        AS gross_profit,
-
+  ROUND(s.total_amount * COALESCE(p.cost_price / NULLIF(p.list_price, 0), 0), 4) AS estimated_cogs,
+  ROUND(s.total_amount - (s.total_amount * COALESCE(p.cost_price / NULLIF(p.list_price, 0), 0)), 4) AS gross_profit,
   -- Audit
   s._ingested_at,
   s._transformed_at
+FROM
+  ${ref("stg_sales")} s
+LEFT JOIN
+  ${ref("dim_product")} p
+ON
+  p.product_id = s.product_id
+  ${
+      when(incremental(),
+          `WHERE s.sale_date = DATE('${dataform.projectConfig.vars.execution_date}')`)
+  }
 
-FROM ${ref("stg_sales")} s
-LEFT JOIN ${ref("dim_product")} p ON p.product_id = s.product_id
-
-${ when(incremental(),
-   `WHERE s.sale_date = DATE('${dataform.projectConfig.vars.execution_date}')`) }
+pre_operations {
+  DELETE
+  FROM
+    ${self()}
+  WHERE
+    sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
+}

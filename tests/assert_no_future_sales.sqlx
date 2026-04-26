@@ -1,0 +1,11 @@
+-- tests/assert_no_future_sales.sqlx
+-- Assertion: no sale dates beyond today
+
+config {
+  type: "assertion",
+  tags: ["quality", "sales"]
+}
+
+SELECT *
+FROM ${ref("stg_sales")}
+WHERE sale_date > CURRENT_DATE()
