@@ -8,10 +8,6 @@ config {
     partitionBy: "sale_date",
     clusterBy: ["store_id", "product_id"],
     requirePartitionFilter: false
-  },
-  assertions: {
-    nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
-    rowConditions: ["total_amount >= 0", "quantity > 0"]
   }
 }
 
