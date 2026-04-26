@@ -26,11 +26,11 @@ def base_url(project, region, repo):
     return f"https://dataform.googleapis.com/v1beta1/projects/{project}/locations/{region}/repositories/{repo}"
 
 
-def run_workflow(base, token):
-    url = f"{base}/workflowInvocations"
+def run_workflow(project, region, repo, token):
+    url = f"{base_url(project, region, repo)}/workflowInvocations"
 
     payload = {
-        "workflowConfig": f"{base}/workflowConfigs/default"   # <-- MUST exist in Dataform UI
+        "workflowConfig": f"projects/{project}/locations/{region}/repositories/{repo}"   # <-- MUST exist in Dataform UI
     }
 
     resp = requests.post(
@@ -55,7 +55,7 @@ def main():
     token = get_token()
     base = base_url(args.project, args.region, args.repo)
 
-    invocation = run_workflow(base, token)
+    invocation = run_workflow(args.project, args.region, args.repo, token)
 
     print(f"✅ Started workflow: {invocation}")
 
