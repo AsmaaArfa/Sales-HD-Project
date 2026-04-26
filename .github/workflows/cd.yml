@@ -199,7 +199,9 @@ jobs:
       - name: Run quality assertions
         env:
           GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
-        run: python3 retail-pipeline/scripts/run_quality_checks.py
+        run: |
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          python3 retail-pipeline/scripts/run_quality_checks.py
 
   # ── 4. Notify on completion ───────────────────────────────────────────────────
   notify:
