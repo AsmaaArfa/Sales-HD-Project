@@ -1,21 +1,4 @@
 config {
-<<<<<<< HEAD
-    type: "incremental",
-    schema: "retail_staging",
-    name: "stg_sales",
-    description: "Cleaned and standardised sales transactions",
-    uniqueKey: ["transaction_id"],
-    bigquery: {
-        partitionBy: "sale_date",
-        clusterBy: ["store_id", "product_id"],
-        requirePartitionFilter: false
-    },
-    tags: ["staging", "sales", "daily"],
-    assertions: {
-        nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
-        rowConditions: ["total_amount >= 0", "quantity > 0"]
-    }
-=======
   type: "incremental",
   schema: "retail_staging",
   name: "stg_sales",
@@ -30,13 +13,8 @@ config {
     nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
     rowConditions: ["total_amount >= 0", "quantity > 0"]
   }
->>>>>>> refs/heads/main
 }
 
-<<<<<<< HEAD
-  -- definitions/staging/stg_sales.sqlx
-  -- Staging layer: clean, type-cast, and deduplicate raw sales
-=======
 pre_operations {
   -- Remove any duplicates that may land during re-runs
     ${ when(incremental(),
@@ -54,7 +32,6 @@ pre_operations {
   )}
 }
 
->>>>>>> 19a3b0f (32)
 SELECT
   -- Keys
   TRIM(transaction_id) AS transaction_id,
@@ -83,18 +60,7 @@ FROM
           `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`)
   }
 
-<<<<<<< HEAD
-pre_operations {
-  -- Remove any duplicates that may land during re-runs
-  DELETE
-  FROM
-    ${self()}
-  WHERE
-    sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
-}
-=======
 FROM `tough-forest-477116-k6.retail_raw.raw_sales`
 
 ${ when(incremental(),
    `WHERE DATE(_ingested_at) >= DATE('${dataform.projectConfig.vars.execution_date || "1900-01-01"}')`) }
->>>>>>> refs/heads/main
