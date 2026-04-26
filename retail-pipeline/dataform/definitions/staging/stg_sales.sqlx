@@ -1,4 +1,5 @@
 config {
+<<<<<<< HEAD
     type: "incremental",
     schema: "retail_staging",
     name: "stg_sales",
@@ -14,6 +15,22 @@ config {
         nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
         rowConditions: ["total_amount >= 0", "quantity > 0"]
     }
+=======
+  type: "incremental",
+  schema: "retail_staging",
+  name: "stg_sales",
+  description: "Cleaned and standardised sales transactions",
+  uniqueKey: ["transaction_id"],
+  bigquery: {
+    partitionBy: "sale_date",
+    clusterBy: ["store_id", "product_id"],
+    requirePartitionFilter: false
+  },
+  assertions: {
+    nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
+    rowConditions: ["total_amount >= 0", "quantity > 0"]
+  }
+>>>>>>> refs/heads/main
 }
 
   -- definitions/staging/stg_sales.sqlx
@@ -46,6 +63,7 @@ FROM
           `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`)
   }
 
+<<<<<<< HEAD
 pre_operations {
   -- Remove any duplicates that may land during re-runs
   DELETE
@@ -54,3 +72,9 @@ pre_operations {
   WHERE
     sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
 }
+=======
+FROM `tough-forest-477116-k6.retail_raw.raw_sales`
+
+${ when(incremental(),
+   `WHERE DATE(_ingested_at) >= DATE('${dataform.projectConfig.vars.execution_date || "1900-01-01"}')`) }
+>>>>>>> refs/heads/main
