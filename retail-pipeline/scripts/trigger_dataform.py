@@ -74,7 +74,7 @@ def create_workflow_invocation(base, token):
         f"{base}/workflowInvocations",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         json={
-            "workflowConfig": f"{base}/workflowConfigs/main"
+            "workflowConfig": "default"
             }
         ,
         timeout=(5, 120),
