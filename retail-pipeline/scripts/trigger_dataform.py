@@ -54,7 +54,7 @@ def main():
 
     print("🚀 Triggering Dataform workflow...")
     token = get_token()
-    base = base_url(args.project, args.region, args.repo)
+    # base = base_url(args.project, args.region, args.repo)
 
     invocation = run_workflow(args.project, args.region, args.repo, token)
 
