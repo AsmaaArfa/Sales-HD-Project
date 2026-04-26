@@ -33,8 +33,28 @@ config {
 >>>>>>> refs/heads/main
 }
 
+<<<<<<< HEAD
   -- definitions/staging/stg_sales.sqlx
   -- Staging layer: clean, type-cast, and deduplicate raw sales
+=======
+pre_operations {
+  -- Remove any duplicates that may land during re-runs
+    ${ when(incremental(),
+    `
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM ${self()}
+      ) THEN
+        DELETE FROM ${self()}
+        WHERE sale_date = CURRENT_DATE();
+      END IF;
+    END;
+    `,
+    ``
+  )}
+}
+
+>>>>>>> 19a3b0f (32)
 SELECT
   -- Keys
   TRIM(transaction_id) AS transaction_id,
