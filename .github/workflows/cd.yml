@@ -126,7 +126,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install Python dependencies
-        run: pip install -r retail-pipeline/requirements.txt
+        run: pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
       
       - name: Install Dataform CLI
         run: npm install -g @dataform/cli@3
