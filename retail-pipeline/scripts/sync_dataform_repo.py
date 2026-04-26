@@ -57,7 +57,7 @@ def write_file(api_base, token, workspace, relative_path, content_bytes):
 
 
 SYNC_EXTENSIONS = {".sqlx", ".js", ".json", ".yaml", ".yml"}
-WORKSPACE = "production"  # Dataform workspace name
+WORKSPACE = "default"  # Dataform workspace name
 
 
 def main():

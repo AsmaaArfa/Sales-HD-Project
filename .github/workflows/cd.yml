@@ -155,12 +155,15 @@ jobs:
           REPO: ${{ secrets.DATAFORM_REPO }}
         run: |
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          REPO="${{ secrets.DATAFORM_REPO }}"
+          WORKSPACE="${{ secrets.DATAFORM_WORKSPACE }}"
 
           # Sync local dataform/ folder to the GCP Dataform repository via API
           python3 retail-pipeline/scripts/sync_dataform_repo.py \
             --project "$PROJECT" \
             --region "$DATAFORM_REGION" \
             --repo "$REPO" \
+            --workspace "$WORKSPACE" \
             --source retail-pipeline/dataform/
 
       - name: Run Dataform workflow (optional)
@@ -170,7 +173,7 @@ jobs:
           REPO: ${{ secrets.DATAFORM_REPO }}
         run: |
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
-          
+
           echo "Triggering Dataform workflow invocation..."
           python3 retail-pipeline/scripts/trigger_dataform.py \
             --project "$PROJECT" \
