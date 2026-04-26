@@ -5,7 +5,6 @@ config {
   schema: "retail_staging",
   name: "stg_products",
   description: "Cleaned product dimension from raw source",
-  tags: ["staging", "products"],
   assertions: {
     nonNull: ["product_id", "product_name"],
     uniqueKey: ["product_id"]
@@ -32,5 +31,5 @@ SELECT
   _ingested_at,
   CURRENT_TIMESTAMP()                              AS _transformed_at
 
-FROM `${dataform.projectConfig.defaultDatabase}.retail_raw.raw_products`
+FROM `tough-forest-477116-k6.retail_raw.raw_products`
 QUALIFY ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY _ingested_at DESC) = 1

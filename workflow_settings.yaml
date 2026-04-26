@@ -1,4 +1,4 @@
-  defaultProject: ${GCP_PROJECT_ID}
+  defaultProject: tough-forest-477116-k6
   defaultDataset: retail_staging
   defaultLocation: US
   dataformCoreVersion: 3.0.0
