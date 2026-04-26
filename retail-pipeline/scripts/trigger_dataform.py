@@ -50,7 +50,7 @@ def base_url(project, region, repo):
 
 def create_compilation_result(base, token, project, vars_dict):
     resp = requests.post(
-        f"{base}/compilationResults",
+        f"{base}:compile",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         json={
             "gitCommitish": "main",
