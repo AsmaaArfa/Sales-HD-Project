@@ -163,7 +163,7 @@ jobs:
             --project "$PROJECT" \
             --region "$DATAFORM_REGION" \
             --repo "$REPO" \
-            --workspace "$WORKSPACE" \
+            --workspace "default" \
             --source retail-pipeline/dataform/
 
       - name: Run Dataform workflow (optional)

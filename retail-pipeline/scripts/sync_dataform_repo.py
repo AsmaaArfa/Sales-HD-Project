@@ -66,6 +66,7 @@ def main():
     parser.add_argument("--region",  required=True)
     parser.add_argument("--repo",    required=True)
     parser.add_argument("--source",  default="dataform/")
+    parser.add_argument("--workspace", default="default") 
     args = parser.parse_args()
 
     source_dir = Path(args.source).resolve()
