@@ -17,6 +17,11 @@ PROJECT = os.environ["GCP_PROJECT_ID"]
 YESTERDAY = (date.today() - timedelta(days=1)).isoformat()
 
 
+print(f"PROJECT: {PROJECT}")
+
+if not PROJECT:
+    raise ValueError("❌ GCP_PROJECT_ID is not set in environment variables")
+
 @dataclass
 class QualityCheck:
     name: str

@@ -201,6 +201,7 @@ jobs:
           GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
         run: |
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          echo "Project=$PROJECT"
           python3 retail-pipeline/scripts/run_quality_checks.py
 
   # ── 4. Notify on completion ───────────────────────────────────────────────────
