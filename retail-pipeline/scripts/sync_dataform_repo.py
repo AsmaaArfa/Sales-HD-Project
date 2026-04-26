@@ -37,6 +37,20 @@ def dataform_api(project, region, repo):
         f"/projects/{project}/locations/{region}/repositories/{repo}"
     )
 
+def ensure_workspace_exists(api_base, token, workspace):
+    url = f"{api_base}/workspaces?workspaceId={workspace}"
+
+    resp = requests.post(
+        url,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30,
+    )
+
+    # 200 = created, 409 = already exists
+    if resp.status_code in (200, 409):
+        return True
+
+    raise Exception(f"Workspace error: {resp.text}")
 
 def write_file(api_base, token, workspace, relative_path, content_bytes):
     url = f"{api_base}/workspaces/{workspace}:writeFile"
@@ -65,8 +79,7 @@ def main():
     parser.add_argument("--project", required=True)
     parser.add_argument("--region",  required=True)
     parser.add_argument("--repo",    required=True)
-    parser.add_argument("--source",  default="dataform/")
-    parser.add_argument("--workspace", default="default") 
+    parser.add_argument("--source",  default="dataform/") 
     args = parser.parse_args()
 
     source_dir = Path(args.source).resolve()
@@ -85,6 +98,8 @@ def main():
     print(f"📂 Syncing {len(files)} files to {args.repo}/{WORKSPACE}")
     success = failure = 0
 
+    ensure_workspace_exists(api_base, token, WORKSPACE)
+    
     for f in sorted(files):
         rel = str(f.relative_to(source_dir))
         content = f.read_bytes()
