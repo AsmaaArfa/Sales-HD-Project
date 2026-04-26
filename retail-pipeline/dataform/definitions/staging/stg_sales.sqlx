@@ -54,7 +54,7 @@ SELECT
   _source_file,
   CURRENT_TIMESTAMP()                             AS _transformed_at
 
-FROM `${dataform.projectConfig.defaultDatabase}.retail_raw.raw_sales`
+FROM `tough-forest-477116-k6.retail_raw.raw_sales`
 
 ${ when(incremental(),
    `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`) }
