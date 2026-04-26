@@ -69,17 +69,14 @@ def base_url(project, region, repo):
 #     return name
 
 
-def create_workflow_invocation(base, token, vars_dict):
+def create_workflow_invocation(base, token):
     resp = requests.post(
         f"{base}/workflowInvocations",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         json={
-            "releaseConfig": f"{base}/releaseConfigs/main",
-            "invocationConfig": {
-            "vars": vars_dict,
-            "transitiveDependenciesIncluded": True
+            "workflowConfig": f"{base}/workflowConfigs/main"
             }
-        },
+        ,
         timeout=(5, 120),
     )
     resp.raise_for_status()
@@ -137,7 +134,7 @@ def main():
     base = base_url(args.project, args.region, args.repo)
 
     # compilation_result = create_compilation_result(base, token, args.project, vars_dict)
-    invocation_name = create_workflow_invocation(base, token, vars_dict)
+    invocation_name = create_workflow_invocation(base, token)
 
     if args.wait:
         wait_for_completion(base, token, invocation_name, args.timeout)
