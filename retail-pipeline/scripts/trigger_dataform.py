@@ -30,7 +30,7 @@ def run_workflow(project, region, repo, token):
     url = f"{base_url(project, region, repo)}/workflowInvocations"
 
     payload = {
-        "workflowConfig": f"projects/{project}/locations/{region}/repositories/{repo}"   # <-- MUST exist in Dataform UI
+        "workflowConfig": f"projects/{project}/locations/{region}/repositories/{repo}/workflowConfigs/default"   # <-- MUST exist in Dataform UI
     }
 
     resp = requests.post(
