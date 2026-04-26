@@ -49,13 +49,15 @@ ON
   p.product_id = s.product_id
   ${
       when(incremental(),
-          `WHERE s.sale_date = DATE('${dataform.projectConfig.vars.execution_date}')`)
+          `WHERE s.sale_date >= DATE('${dataform.projectConfig.vars.execution_date || "1900-01-01"}')`)
   }
 
 pre_operations {
-  DELETE
-  FROM
-    ${self()}
-  WHERE
-    sale_date = DATE('${when(incremental(), dataform.projectConfig.vars.execution_date, "1900-01-01")}')
+  ${ when(incremental(),
+    `
+    DELETE FROM ${self()}
+    WHERE sale_date >= DATE('${dataform.projectConfig.vars.execution_date || "1900-01-01"}')
+    `,
+    ``
+  )}
 }
