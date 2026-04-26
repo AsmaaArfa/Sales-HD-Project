@@ -30,7 +30,7 @@ def run_workflow(base, token):
     url = f"{base}/workflowInvocations"
 
     payload = {
-        "workflowConfig": "default"   # <-- MUST exist in Dataform UI
+        "workflowConfig": f"{base}/workflowConfigs/default"   # <-- MUST exist in Dataform UI
     }
 
     resp = requests.post(
