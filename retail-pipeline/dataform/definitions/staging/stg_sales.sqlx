@@ -56,4 +56,4 @@ SELECT
 FROM `tough-forest-477116-k6.retail_raw.raw_sales`
 
 ${ when(incremental(),
-   `WHERE DATE(_ingested_at) = DATE('${dataform.projectConfig.vars.execution_date}')`) }
+   `WHERE DATE(_ingested_at) = DATE('${CURRENT_TIMESTAMP()}')`) }

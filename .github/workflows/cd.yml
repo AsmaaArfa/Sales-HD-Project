@@ -148,13 +148,6 @@ jobs:
           for t in tables:
               print(f'    - {t[\"target\"][\"schema\"]}.{t[\"target\"][\"name\"]} ({t[\"type\"]})')
           "
-      - name: Run Dataform models (EXECUTE in BigQuery)
-        working-directory: retail-pipeline/dataform
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        run: |
-          dataform run \
-          --vars="execution_date=$(date -u +%Y-%m-%d)"
 
       - name: Push Dataform code to GCP repository
         env:
