@@ -1,0 +1,44 @@
+-- definitions/marts/dim_date.sqlx
+-- Date dimension: covers 2020-01-01 to 2030-12-31
+
+config {
+  type: "table",
+  schema: "retail_mart",
+  name: "dim_date",
+  description: "Date dimension spanning 2020-2030",
+  tags: ["mart", "dimension", "date"],
+  bigquery: { clusterBy: ["year", "month"] }
+}
+
+WITH date_spine AS (
+  SELECT DATE_ADD(DATE '2020-01-01', INTERVAL n DAY) AS full_date
+  FROM UNNEST(GENERATE_ARRAY(0, DATE_DIFF(DATE '2030-12-31', DATE '2020-01-01', DAY))) AS n
+)
+
+SELECT
+  FORMAT_DATE('%Y%m%d', full_date)              AS date_key,         -- surrogate: 20240115
+  full_date,
+  EXTRACT(YEAR        FROM full_date)            AS year,
+  EXTRACT(QUARTER     FROM full_date)            AS quarter,
+  EXTRACT(MONTH       FROM full_date)            AS month,
+  FORMAT_DATE('%B',   full_date)                 AS month_name,
+  FORMAT_DATE('%b',   full_date)                 AS month_name_short,
+  EXTRACT(WEEK        FROM full_date)            AS week_of_year,
+  EXTRACT(DAY         FROM full_date)            AS day_of_month,
+  EXTRACT(DAYOFWEEK   FROM full_date)            AS day_of_week,      -- 1=Sun
+  FORMAT_DATE('%A',   full_date)                 AS day_name,
+  FORMAT_DATE('%a',   full_date)                 AS day_name_short,
+  EXTRACT(DAYOFYEAR   FROM full_date)            AS day_of_year,
+  CONCAT(CAST(EXTRACT(YEAR FROM full_date) AS STRING), '-Q',
+         CAST(EXTRACT(QUARTER FROM full_date) AS STRING))             AS year_quarter,
+  FORMAT_DATE('%Y-%m', full_date)               AS year_month,
+  CASE EXTRACT(DAYOFWEEK FROM full_date)
+    WHEN 1 THEN TRUE WHEN 7 THEN TRUE ELSE FALSE
+  END                                            AS is_weekend,
+  CASE EXTRACT(DAYOFWEEK FROM full_date)
+    WHEN 1 THEN FALSE WHEN 7 THEN FALSE ELSE TRUE
+  END                                            AS is_weekday,
+  full_date = CURRENT_DATE()                     AS is_today,
+  full_date < CURRENT_DATE()                     AS is_past
+
+FROM date_spine

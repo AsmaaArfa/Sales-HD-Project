@@ -1,0 +1,36 @@
+-- definitions/staging/stg_products.sqlx
+
+config {
+  type: "table",
+  schema: "retail_staging",
+  name: "stg_products",
+  description: "Cleaned product dimension from raw source",
+  tags: ["staging", "products"],
+  assertions: {
+    nonNull: ["product_id", "product_name"],
+    uniqueKey: ["product_id"]
+  }
+}
+
+SELECT
+  TRIM(product_id)                                AS product_id,
+  INITCAP(TRIM(product_name))                     AS product_name,
+  INITCAP(TRIM(COALESCE(category, 'Uncategorised'))) AS category,
+  INITCAP(TRIM(COALESCE(subcategory, 'Uncategorised'))) AS subcategory,
+  INITCAP(TRIM(COALESCE(brand, 'Unknown')))        AS brand,
+  ROUND(SAFE_CAST(cost_price AS FLOAT64), 4)      AS cost_price,
+  ROUND(SAFE_CAST(list_price AS FLOAT64), 4)      AS list_price,
+  CASE
+    WHEN SAFE_CAST(cost_price AS FLOAT64) > 0
+     AND SAFE_CAST(list_price AS FLOAT64) > 0
+    THEN ROUND(
+      (SAFE_CAST(list_price AS FLOAT64) - SAFE_CAST(cost_price AS FLOAT64))
+      / SAFE_CAST(list_price AS FLOAT64) * 100, 2
+    )
+    ELSE NULL
+  END                                              AS gross_margin_pct,
+  _ingested_at,
+  CURRENT_TIMESTAMP()                              AS _transformed_at
+
+FROM `${dataform.projectConfig.defaultDatabase}.retail_raw.raw_products`
+QUALIFY ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY _ingested_at DESC) = 1

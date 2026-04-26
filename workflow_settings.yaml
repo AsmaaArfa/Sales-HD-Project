@@ -1,0 +1,10 @@
+  defaultProject: ${GCP_PROJECT_ID}
+  defaultDataset: retail_staging
+  defaultLocation: US
+  dataformCoreVersion: 3.0.0
+  vars:
+    raw_dataset: retail_raw
+    staging_dataset: retail_staging
+    mart_dataset: retail_mart
+  
+
