@@ -73,7 +73,9 @@ def create_workflow_invocation(base, token, vars_dict):
     resp = requests.post(
         f"{base}/workflowInvocations",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json={"invocationConfig": {
+        json={
+            "releaseConfig": f"{base}/releaseConfigs/main",
+            "invocationConfig": {
             "vars": vars_dict,
             "transitiveDependenciesIncluded": True
             }
