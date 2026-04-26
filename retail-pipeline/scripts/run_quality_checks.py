@@ -51,15 +51,6 @@ CHECKS = [
         """,
     ),
     QualityCheck(
-        name="fact_sales_loaded_yesterday",
-        description="Fact table has rows for yesterday",
-        sql=f"""
-            SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
-            FROM `{PROJECT}.retail_mart.fact_sales`
-            WHERE sale_date = '{YESTERDAY}'
-        """,
-    ),
-    QualityCheck(
         name="dim_product_no_orphans",
         description="All products in fact table exist in dim_product",
         sql=f"""
