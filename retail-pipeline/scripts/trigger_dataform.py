@@ -48,32 +48,36 @@ def base_url(project, region, repo):
     )
 
 
-def create_compilation_result(base, token, project, vars_dict):
-    resp = requests.post(
-        f"{base}/compilationResults",
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json={
-            "gitCommitish": "main",
-            "codeCompilationConfig": {
-                "defaultDatabase": project,
-                "defaultSchema": "retail_staging",
-                "vars": vars_dict,
-            },
-        },
-        timeout=(5, 120),
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    name = data["name"]
-    print(f"  Compilation result: {name}")
-    return name
+# def create_compilation_result(base, token, project, vars_dict):
+#     resp = requests.post(
+#         f"{base}/compilationResults",
+#         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+#         json={
+#             "gitCommitish": "main",
+#             "codeCompilationConfig": {
+#                 "defaultDatabase": project,
+#                 "defaultSchema": "retail_staging",
+#                 "vars": vars_dict,
+#             },
+#         },
+#         timeout=(5, 120),
+#     )
+#     resp.raise_for_status()
+#     data = resp.json()
+#     name = data["name"]
+#     print(f"  Compilation result: {name}")
+#     return name
 
 
-def create_workflow_invocation(base, token, compilation_result_name):
+def create_workflow_invocation(base, token, vars_dict):
     resp = requests.post(
         f"{base}/workflowInvocations",
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json={"compilationResult": compilation_result_name},
+        json={"invocationConfig": {
+            "vars": vars_dict,
+            "transitiveDependenciesIncluded": True
+            }
+        },
         timeout=(5, 120),
     )
     resp.raise_for_status()
@@ -130,8 +134,8 @@ def main():
     token = get_token()
     base = base_url(args.project, args.region, args.repo)
 
-    compilation_result = create_compilation_result(base, token, args.project, vars_dict)
-    invocation_name = create_workflow_invocation(base, token, compilation_result)
+    # compilation_result = create_compilation_result(base, token, args.project, vars_dict)
+    invocation_name = create_workflow_invocation(base, token, vars_dict)
 
     if args.wait:
         wait_for_completion(base, token, invocation_name, args.timeout)
