@@ -55,7 +55,7 @@ CHECKS = [
         description="Fact table has rows for yesterday",
         sql=f"""
             SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
-            FROM `{PROJECT}.retail_marts.fact_sales`
+            FROM `{PROJECT}.retail_mart.fact_sales`
             WHERE sale_date = '{YESTERDAY}'
         """,
     ),
@@ -64,8 +64,8 @@ CHECKS = [
         description="All products in fact table exist in dim_product",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_marts.fact_sales` f
-            LEFT JOIN `{PROJECT}.retail_marts.dim_product` p
+            FROM `{PROJECT}.retail_mart.fact_sales` f
+            LEFT JOIN `{PROJECT}.retail_mart.dim_product` p
                    ON f.product_key = p.product_key
             WHERE p.product_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
@@ -76,8 +76,8 @@ CHECKS = [
         description="All stores in fact table exist in dim_store",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_marts.fact_sales` f
-            LEFT JOIN `{PROJECT}.retail_marts.dim_store` s
+            FROM `{PROJECT}.retail_mart.fact_sales` f
+            LEFT JOIN `{PROJECT}.retail_mart.dim_store` s
                    ON f.store_key = s.store_key
             WHERE s.store_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
@@ -88,7 +88,7 @@ CHECKS = [
         description="KPI report has positive total revenue for yesterday",
         sql=f"""
             SELECT CASE WHEN SUM(total_revenue) <= 0 THEN 1 ELSE 0 END AS failures
-            FROM `{PROJECT}.retail_marts.rpt_sales_kpis`
+            FROM `{PROJECT}.retail_mart.rpt_sales_kpis`
             WHERE sale_date = '{YESTERDAY}'
         """,
         severity="WARNING",
