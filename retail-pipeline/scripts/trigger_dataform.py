@@ -40,6 +40,7 @@ def run_workflow(project, region, repo, token):
             "Content-Type": "application/json",
         },
         json=payload,
+        timeout=120,
     )
 
     print(resp.text)
