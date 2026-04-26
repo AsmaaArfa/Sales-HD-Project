@@ -5,7 +5,6 @@ config {
   schema: "retail_staging",
   name: "stg_stores",
   description: "Cleaned store dimension",
-  tags: ["staging", "stores"],
   assertions: {
     nonNull: ["store_id", "store_name"],
     uniqueKey: ["store_id"]

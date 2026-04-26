@@ -12,7 +12,6 @@ config {
     clusterBy: ["store_id", "product_id"],
     requirePartitionFilter: false
   },
-  tags: ["staging", "sales", "daily"],
   assertions: {
     nonNull: ["transaction_id", "sale_date", "store_id", "product_id", "total_amount"],
     rowConditions: ["total_amount >= 0", "quantity > 0"]
