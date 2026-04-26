@@ -173,14 +173,6 @@ jobs:
         run: |
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
 
-          echo "Triggering Dataform workflow invocation..."
-          python3 retail-pipeline/scripts/trigger_dataform.py \
-            --project "$PROJECT" \
-            --region "$DATAFORM_REGION" \
-            --repo "$REPO" \
-            --vars "execution_date=$(date -u +%Y-%m-%d)" \
-            --wait
-
   # ── 3. Run post-deploy data quality checks ────────────────────────────────────
   post-deploy-quality:
     name: Post-Deploy Quality Checks
@@ -206,8 +198,11 @@ jobs:
 
       - name: Run quality assertions
         env:
-          GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
-        run: python3 retail-pipeline/scripts/run_quality_checks.py
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          echo "Project=$PROJECT"
+          python3 retail-pipeline/scripts/run_quality_checks.py
 
   # ── 4. Notify on completion ───────────────────────────────────────────────────
   notify:

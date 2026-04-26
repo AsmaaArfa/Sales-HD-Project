@@ -17,6 +17,11 @@ PROJECT = os.environ["GCP_PROJECT_ID"]
 YESTERDAY = (date.today() - timedelta(days=1)).isoformat()
 
 
+print(f"PROJECT: {PROJECT}")
+
+if not PROJECT:
+    raise ValueError("❌ GCP_PROJECT_ID is not set in environment variables")
+
 @dataclass
 class QualityCheck:
     name: str
@@ -32,7 +37,7 @@ CHECKS = [
         description="No null transaction IDs in staging",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_staging.stg_sales`
+            FROM `{PROJECT}.staging.stg_sales`
             WHERE transaction_id IS NULL
         """,
     ),
@@ -41,7 +46,7 @@ CHECKS = [
         description="All sale amounts are non-negative",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_staging.stg_sales`
+            FROM `{PROJECT}.staging.stg_sales`
             WHERE total_amount < 0
         """,
     ),
@@ -50,7 +55,7 @@ CHECKS = [
         description="Fact table has rows for yesterday",
         sql=f"""
             SELECT CASE WHEN COUNT(*) = 0 THEN 1 ELSE 0 END AS failures
-            FROM `{PROJECT}.retail_mart.fact_sales`
+            FROM `{PROJECT}.marts.fact_sales`
             WHERE sale_date = '{YESTERDAY}'
         """,
     ),
@@ -59,8 +64,8 @@ CHECKS = [
         description="All products in fact table exist in dim_product",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_mart.fact_sales` f
-            LEFT JOIN `{PROJECT}.retail_mart.dim_product` p
+            FROM `{PROJECT}.marts.fact_sales` f
+            LEFT JOIN `{PROJECT}.marts.dim_product` p
                    ON f.product_key = p.product_key
             WHERE p.product_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
@@ -71,8 +76,8 @@ CHECKS = [
         description="All stores in fact table exist in dim_store",
         sql=f"""
             SELECT COUNT(*) AS failures
-            FROM `{PROJECT}.retail_mart.fact_sales` f
-            LEFT JOIN `{PROJECT}.retail_mart.dim_store` s
+            FROM `{PROJECT}.marts.fact_sales` f
+            LEFT JOIN `{PROJECT}.marts.dim_store` s
                    ON f.store_key = s.store_key
             WHERE s.store_key IS NULL
               AND f.sale_date = '{YESTERDAY}'
@@ -83,7 +88,7 @@ CHECKS = [
         description="KPI report has positive total revenue for yesterday",
         sql=f"""
             SELECT CASE WHEN SUM(total_revenue) <= 0 THEN 1 ELSE 0 END AS failures
-            FROM `{PROJECT}.retail_mart.rpt_sales_kpis`
+            FROM `{PROJECT}.marts.rpt_sales_kpis`
             WHERE sale_date = '{YESTERDAY}'
         """,
         severity="WARNING",
