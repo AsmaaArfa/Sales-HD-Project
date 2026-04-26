@@ -82,6 +82,9 @@ def create_workflow_invocation(base, token):
     resp.raise_for_status()
     data = resp.json()
     name = data["name"]
+
+    print(resp.text)
+    
     print(f"  Workflow invocation: {name}")
     return name
 
