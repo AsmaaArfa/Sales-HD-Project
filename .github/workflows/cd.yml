@@ -198,7 +198,7 @@ jobs:
 
       - name: Run quality assertions
         env:
-          GCP_PROJECT_ID: ${{ needs.setup.outputs.gcp_project }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
           echo "Project=$PROJECT"
